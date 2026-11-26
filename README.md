@@ -14,19 +14,34 @@ Aplicação web para organizar viagens corporativas, tarefas e documentos da ope
 - Políticas RLS para isolar os registros pelo usuário autenticado.
 - Esquema versionado para trechos, check-ins, cartões de embarque, hotéis e transfers.
 
+## Supabase
+
+1. Crie ou selecione o projeto Supabase.
+2. No **SQL Editor**, execute em ordem todos os arquivos de `supabase/migrations/`.
+3. Em **Authentication → Users**, crie o usuário que poderá entrar. O cadastro público não está habilitado no MVP.
+4. Copie a Project URL e a chave publicável (anon) nas variáveis de ambiente da hospedagem:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+As variáveis do navegador são públicas por natureza; a segurança depende das políticas RLS e do bucket privado. Nunca coloque a chave `service_role` no frontend, em variáveis `NEXT_PUBLIC_*` ou no GitHub.
+
+## Publicação no Netlify
+
+O arquivo `netlify.toml` configura o comando de build e o plugin oficial do Next.js.
+
+1. No Netlify, escolha **Add new site → Import an existing project** e conecte o GitHub.
+2. Selecione o repositório `jscastabia/Concierge-Stabia` e a branch `feat/concierge-travel-mvp` para testar o MVP (ou a branch de produção após revisão/merge).
+3. Em **Site configuration → Environment variables**, cadastre `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` para o contexto de deploy desejado.
+4. Configure Node.js 20 ou superior, publique e acompanhe o log do deploy.
+5. Abra a URL HTTPS gerada pelo Netlify e faça login com o usuário criado no Supabase.
+
+Para login e redefinição de senha em produção, ajuste **Authentication → URL Configuration** no Supabase com a URL real do site Netlify e os redirect URLs permitidos. Não use URLs de preview como URL principal de produção.
+
 ## Desenvolvimento local
 
 1. Instale Node.js 20 ou superior.
-2. Crie um projeto no Supabase e execute, em ordem, as migrations em `supabase/migrations/` no SQL Editor.
-3. Copie `.env.example` para `.env.local` e informe `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Cadastre uma conta em Supabase → Authentication → Users. O cadastro público não está habilitado no MVP.
-5. Execute `npm install` e `npm run dev`.
-
-As variáveis usadas no browser são somente URL e chave anon/publicável. **Nunca** exponha `service_role` no frontend ou no GitHub.
-
-## Publicação
-
-Conecte este repositório à Vercel, configure as duas variáveis públicas acima no projeto e publique. A URL do projeto será acessível em navegador. Use projeto Supabase de produção separado do ambiente de desenvolvimento, aplique as migrations versionadas e configure autenticação/recuperação de senha antes de convidar usuários.
+2. Copie `.env.example` para `.env.local` e informe a URL e a chave publicável do Supabase.
+3. Execute `npm install` e `npm run dev`.
 
 ## Segurança, documentos e backup
 
@@ -36,7 +51,8 @@ Defina backups conforme o plano Supabase contratado e valide restaurações peri
 
 ## Próximas etapas
 
-1. Conectar o Supabase real, aplicar migrations e validar fluxo de autenticação e upload em ambiente de teste.
-2. Integrar telas para múltiplos passageiros, trechos, check-ins, hotéis e transfers.
-3. Acrescentar calendário operacional, filtros combinados, relatórios e histórico detalhado.
-4. Introduzir organizações, convites de equipe, papéis, auditoria e controles LGPD antes do uso multiusuário.
+1. Configurar as variáveis de ambiente do Netlify e conferir se as migrations foram aplicadas no Supabase.
+2. Validar login, cadastro de viagem/tarefa e upload/visualização de arquivo com usuário de teste.
+3. Integrar telas para múltiplos passageiros, trechos, check-ins, hotéis e transfers.
+4. Acrescentar calendário operacional, filtros combinados, relatórios e histórico detalhado.
+5. Introduzir organizações, convites de equipe, papéis, auditoria e controles LGPD antes do uso multiusuário.
