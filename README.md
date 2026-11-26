@@ -12,29 +12,28 @@ Aplicação web para organizar viagens corporativas, tarefas e documentos da ope
 - Upload de PDF, JPG, PNG, WebP e documentos Office; limite inicial de 20 MB por arquivo.
 - Links assinados de curta duração para abrir arquivos privados.
 - Políticas RLS para isolar os registros pelo usuário autenticado.
+- Esquema versionado para trechos, check-ins, cartões de embarque, hotéis e transfers.
+- Calendário operacional, histórico e filtros serão desenvolvidos nas próximas entregas.
+
+## Supabase e login
+
+1. No Supabase, confirme que o usuário existe em **Authentication → Users** e que o e-mail está confirmado. Se criou o usuário por convite, use o link de convite/definição de senha; se já definiu a senha, entre com exatamente esse e-mail e senha. O aplicativo não usa código TOTP do Authenticator como senha.
+2. No Netlify, configure `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` usando a URL e a chave publicável do **mesmo projeto**.
+3. Em **Authentication → URL Configuration**, defina `https://SEU-SITE.netlify.app` como Site URL e inclua `https://SEU-SITE.netlify.app/redefinir-senha` nos Redirect URLs permitidos. Substitua pelo domínio real.
+4. O link **Esqueci minha senha** abre `/recuperar-senha`. O e-mail do Supabase encaminha para `/redefinir-senha`. Para entrega confiável em produção, configure SMTP próprio em **Authentication → SMTP Settings** e confira spam/limites de envio.
+5. Se o site ainda aparecer sem estilo, confirme que o deploy foi feito a partir da branch `feat/concierge-travel-mvp`, execute **Clear cache and deploy site** no Netlify e verifique que `src/app/layout.tsx` importa `globals.css`. O layout inclui estilos críticos inline para que a tela de acesso continue legível mesmo se o CSS compilado não carregar.
+
+## Deploy no Netlify
+
+O arquivo `netlify.toml` configura o build Next.js e o plugin oficial do Netlify. Conecte o repositório, publique a branch `feat/concierge-travel-mvp` para teste e configure as variáveis de ambiente em Site configuration. Faça um deploy novo após alterar variáveis.
+
+## Segurança e arquivos
+
+O bucket `trip-documents` é privado, limitado ao prefixo do usuário, e os arquivos são abertos por URL assinada curta. RLS protege os dados no banco. Nunca coloque a chave `service_role` no frontend ou em variável `NEXT_PUBLIC_*`; a chave publicável é apropriada no navegador quando as políticas RLS estão corretas. Backups PostgreSQL não substituem backup dos objetos Storage.
 
 ## Desenvolvimento local
 
-1. Instale Node.js 20 ou superior.
-2. Crie um projeto no Supabase e execute `supabase/migrations/202611260001_init.sql` no SQL Editor.
-3. Copie `.env.example` para `.env.local` e informe `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Cadastre uma conta em Supabase → Authentication → Users. O cadastro público não está habilitado no MVP.
-5. Execute `npm install` e `npm run dev`.
-
-As variáveis usadas no browser são somente URL e chave anon/publicável. **Nunca** exponha `service_role` no frontend ou no GitHub.
-
-## Publicação
-
-Este repositório é publicado na Netlify. As duas variáveis públicas acima (`NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`, que aceita a chave publicável `sb_publishable_…`) ficam nas variáveis de ambiente do projeto; como são incorporadas no build, publique novamente após alterá-las. A URL do projeto será acessível em navegador. Use projeto Supabase de produção separado do ambiente de desenvolvimento, aplique as migrações versionadas e configure autenticação/recuperação de senha antes de convidar usuários.
-
-## Segurança, documentos e backup
-
-O bucket `trip-documents` é privado e limita o acesso ao prefixo do usuário autenticado; os arquivos são abertos por URL assinada de 60 segundos. RLS protege os dados no banco. A chave `service_role` não é necessária na aplicação cliente. Para expandir a equipe, migre o escopo `owner_id` para organização/membros com papéis e políticas auditadas antes de compartilhar os dados.
-
-Defina backups conforme o plano Supabase contratado e valide restaurações periodicamente. Backups do PostgreSQL não devem ser considerados backup dos objetos do Storage: planeje exportação/versionamento independente dos arquivos e retenção adequada. O limite do MVP é 20 MB por arquivo; revise quotas, disponibilidade de backups, retenção e preços nas páginas oficiais dos provedores antes de operar com documentos reais.
-
-## Próximas etapas
-
-1. Modelar múltiplos passageiros, trechos aéreos, check-ins, hotéis e transfers.
-2. Acrescentar calendário operacional, filtros combinados, relatórios e histórico detalhado.
-3. Introduzir organizações, convites de equipe, papéis, auditoria e controles LGPD antes do uso multiusuário.
+1. Use Node.js 20 ou superior.
+2. Execute em ordem as migrations em `supabase/migrations/` no SQL Editor.
+3. Configure `.env.local` com as variáveis Supabase publicáveis.
+4. Cadastre o usuário no Supabase Authentication e execute `npm install` e `npm run dev`.
