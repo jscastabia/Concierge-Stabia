@@ -25,7 +25,7 @@ As variáveis usadas no browser são somente URL e chave anon/publicável. **Nun
 
 ## Publicação
 
-Conecte este repositório à Vercel, configure as duas variáveis públicas acima no projeto e publique. A URL do projeto será acessível em navegador. Use projeto Supabase de produção separado do ambiente de desenvolvimento, aplique as migrações versionadas e configure autenticação/recuperação de senha antes de convidar usuários.
+Este repositório é publicado na Netlify. As duas variáveis públicas acima (`NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`, que aceita a chave publicável `sb_publishable_…`) ficam nas variáveis de ambiente do projeto; como são incorporadas no build, publique novamente após alterá-las. A URL do projeto será acessível em navegador. Use projeto Supabase de produção separado do ambiente de desenvolvimento, aplique as migrações versionadas e configure autenticação/recuperação de senha antes de convidar usuários.
 
 ## Segurança, documentos e backup
 
